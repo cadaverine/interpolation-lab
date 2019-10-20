@@ -16,6 +16,7 @@ var reducers map[string]func(float64) float64 = map[string]func(float64) float64
 	"y = x^3":         func(x float64) float64 { return x * x * x },
 	"y = x^4":         func(x float64) float64 { return x * x * x * x },
 	"y = cos(x)":      func(x float64) float64 { return math.Cos(x * math.Pi / 180) },
+	"y = sqrt(x)":     func(x float64) float64 { return math.Sqrt(x) },
 	"y = x * sqrt(x)": func(x float64) float64 { return x * math.Sqrt(x) },
 }
 
