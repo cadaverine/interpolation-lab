@@ -22,7 +22,9 @@ var reducers map[string]func(float64) float64 = map[string]func(float64) float64
 func main() {
 	fmt.Println("Newton polynomial interpolation (y = x^2).")
 
-	x0, h, x, n, reducer := handleInput(reducers)
+	x0, h, x, n, reducerKey := handleInput(reducers)
+
+	reducer := reducers[reducerKey]
 
 	xArray := getRange(x0, h, n)
 	yArray := getYArray(xArray, reducer)
@@ -35,7 +37,7 @@ func main() {
 		panic(err)
 	}
 
-	p.Title.Text = "Newton polynomial interpolation (y = x^2)"
+	p.Title.Text = "Newton polynomial interpolation " + "(" + reducerKey + ")"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
@@ -53,7 +55,7 @@ func main() {
 	}
 }
 
-func handleInput(map[string]func(float64) float64) (x0, h, x float64, n int, reducer func(float64) float64) {
+func handleInput(map[string]func(float64) float64) (x0, h, x float64, n int, reducerKey string) {
 	fmt.Println("Choose the available function:")
 
 	keys := make([]string, 0, len(reducers))
@@ -67,7 +69,7 @@ func handleInput(map[string]func(float64) float64) (x0, h, x float64, n int, red
 
 	var index int
 	fmt.Scanln(&index)
-	reducer = reducers[keys[index]]
+	reducerKey = keys[index]
 
 	fmt.Print("Enter x0: ")
 	fmt.Scanln(&x0)
