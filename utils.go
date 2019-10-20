@@ -7,7 +7,7 @@ func getRange(from, step float64, pointsNum int) []float64 {
 
 	rangeArr[0] = from
 	for i := 1; i < pointsNum; i++ {
-		rangeArr[i] = round(rangeArr[i-1]+step, 4)
+		rangeArr[i] = rangeArr[i-1] + step
 	}
 
 	return rangeArr
@@ -17,7 +17,7 @@ func getYArray(xArray []float64, reducer func(float64) float64) []float64 {
 	yArray := make([]float64, len(xArray))
 
 	for i, x := range xArray {
-		yArray[i] = round(reducer(x), 4)
+		yArray[i] = reducer(x)
 	}
 
 	return yArray
