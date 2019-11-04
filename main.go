@@ -23,7 +23,7 @@ var reducers map[string]func(float64) float64 = map[string]func(float64) float64
 func main() {
 	fmt.Println("Newton polynomial interpolation (y = x^2).")
 
-	x0, h, x, n, reducerKey := handleInput(reducers)
+	x0, h, x, n, N, reducerKey := handleInput(reducers)
 
 	reducer := reducers[reducerKey]
 
@@ -31,7 +31,7 @@ func main() {
 	yArray := getYArray(xArray, reducer)
 
 	fmt.Println("Function result: ", reducer(x))
-	fmt.Println("Interpolation result: ", interpolate(xArray, yArray, n, x))
+	fmt.Println("Interpolation result: ", interpolate(xArray, yArray, N, x))
 
 	p, err := plot.New()
 	if err != nil {
@@ -44,7 +44,7 @@ func main() {
 
 	err = plotutil.AddLinePoints(p,
 		"Real function", getFunctionPlotPoints(xArray, yArray, reducer),
-		"Interpolation", getInterpolatedPlotPoints(xArray, yArray, n),
+		"Interpolation", getInterpolatedPlotPoints(xArray, yArray, N),
 	)
 
 	if err != nil {
@@ -56,7 +56,9 @@ func main() {
 	}
 }
 
-func handleInput(map[string]func(float64) float64) (x0, h, x float64, n int, reducerKey string) {
+func handleInput(map[string]func(float64) float64) (x0, h, x float64, n, N int, reducerKey string) {
+	fmt.Println("\nCREATE TEST TABLE\n--------------------------\n")
+
 	fmt.Println("Choose the available function:")
 
 	keys := make([]string, 0, len(reducers))
@@ -78,8 +80,14 @@ func handleInput(map[string]func(float64) float64) (x0, h, x float64, n int, red
 	fmt.Print("Enter h:  ")
 	fmt.Scanln(&h)
 
-	fmt.Print("Enter N:  ")
+	fmt.Print("Enter n:  ")
 	fmt.Scanln(&n)
+
+	fmt.Println("--------------------------")
+	fmt.Println("SET INTERPOLATION PARAMS")
+
+	fmt.Print("Enter N:  ")
+	fmt.Scanln(&N)
 
 	fmt.Print("Enter x:  ")
 	fmt.Scanln(&x)
@@ -107,7 +115,7 @@ func interpolate(xArray, yArray []float64, N int, x float64) float64 {
 	diffs := getDividedDifferences(xArray, yArray)
 	y := diffs[0]
 
-	for i := 1; i < N; i++ {
+	for i := 1; i < N+1; i++ {
 		step := diffs[i]
 
 		for j := 0; j < i; j++ {
