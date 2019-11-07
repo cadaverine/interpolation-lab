@@ -26,44 +26,68 @@ func CreateConfig(xArr []float64, reducer func(float64) float64) *Config {
 	return (*Config)(CreateTable(xArr, yArr))
 }
 
-func getNeighbors(values []float64, currentValue float64, pointsNum int) ([]float64, error) {
-	valuesNum := len(values)
+func findIndex(values []float64, currentValue float64) (int, error) {
+	var err error
+	var result int
 
-	if pointsNum > valuesNum {
-		return nil, errors.New("length error")
-	}
+	switch true {
+	case len(values) == 0:
+		err = errors.New("Error: values slice is empty")
 
-	if pointsNum == valuesNum {
-		clone := make([]float64, len(values))
-		copy(clone, values)
+	case currentValue > values[len(values)-1]:
+		result = len(values) - 1
 
-		return clone, nil
-	}
-
-	rightOffset := pointsNum / 2
-	leftOffset := rightOffset + pointsNum%2
-
-	var from, to int
-
-	for i, value := range values {
-		if value >= currentValue {
-			if i < leftOffset {
-				from = 0
-				to = pointsNum - 1
-			} else if valuesNum-1-i < rightOffset {
-				to = valuesNum - 1
-				from = to - (pointsNum - 1)
-			} else {
-				from = i - leftOffset
-				to = i + rightOffset
+	default:
+		for i, value := range values {
+			if value >= currentValue {
+				result = i
+				break
 			}
-
-			break
 		}
 	}
 
-	result := make([]float64, pointsNum)
-	copy(result, values[from:to])
+	return result, err
+}
 
-	return result, nil
+func getNeighbors(values []float64, currentValue float64, pointsNum int) ([]float64, error) {
+	var err error
+	var result []float64
+
+	valuesNum := len(values)
+
+	switch true {
+	case pointsNum < 2:
+		err = errors.New("Error: points num must be more than 1")
+
+	case pointsNum > valuesNum:
+		err = errors.New("Error: values num less then points num")
+
+	case pointsNum == valuesNum:
+		result = make([]float64, len(values))
+		copy(result, values)
+
+	default:
+		rightOffset := pointsNum / 2
+		leftOffset := rightOffset + pointsNum%2
+		index, err := findIndex(values, currentValue)
+
+		var from, to int
+
+		if err == nil {
+			if index < leftOffset {
+				to = pointsNum
+			} else if valuesNum-1 < index+rightOffset {
+				from = valuesNum - pointsNum
+				to = valuesNum
+			} else {
+				from = index - leftOffset
+				to = index + leftOffset
+			}
+
+			result = make([]float64, pointsNum)
+			copy(result, values[from:to])
+		}
+	}
+
+	return result, err
 }
