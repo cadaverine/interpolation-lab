@@ -17,6 +17,11 @@ func generateTestCases() []*TestCase {
 	testCases := []*TestCase{
 		&TestCase{[]float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, 1.5, 5, []float64{1.0, 2.0, 3.0, 4.0, 5.0}, false},
 		&TestCase{[]float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, 6.9, 2, []float64{6.0, 7.0}, false},
+		&TestCase{[]float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, 4.1, 3, []float64{3.0, 4.0, 5.0}, false},
+		&TestCase{[]float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, 4.1, 4, []float64{3.0, 4.0, 5.0, 6.0}, false},
+		&TestCase{[]float64{1.0, 2.0, 3.0}, 0.0, 2, []float64{1.0, 2.0}, false},
+		&TestCase{[]float64{1.0, 2.0, 3.0}, 3.1, 1, nil, true},
+		&TestCase{[]float64{1.0, 2.0, 3.0}, 3.1, 4, nil, true},
 	}
 
 	return testCases
