@@ -57,8 +57,6 @@ func main() {
 }
 
 func handleInput(map[string]func(float64) float64) (x0, h, x float64, n, N int, reducerKey string) {
-	fmt.Println("\nCREATE TEST TABLE\n--------------------------\n")
-
 	fmt.Println("Choose the available function:")
 
 	keys := make([]string, 0, len(reducers))
