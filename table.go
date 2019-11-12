@@ -14,16 +14,14 @@ func CreateTable(xArr []float64, yArr []float64) *Table {
 	}
 }
 
-type Config Table
-
-func CreateConfig(xArr []float64, reducer func(float64) float64) *Config {
+func CreateTableFunction(xArr []float64, reducer func(float64) float64) *Table {
 	yArr := make([]float64, len(xArr))
 
 	for i, x := range xArr {
 		yArr[i] = reducer(x)
 	}
 
-	return (*Config)(CreateTable(xArr, yArr))
+	return CreateTable(xArr, yArr)
 }
 
 func findIndex(values []float64, currentValue float64) (int, error) {
@@ -49,9 +47,9 @@ func findIndex(values []float64, currentValue float64) (int, error) {
 	return result, err
 }
 
-func getNeighbors(values []float64, currentValue float64, pointsNum int) ([]float64, error) {
+func getNeighbors(values []float64, currentValue float64, pointsNum int) (int, int, error) {
 	var err error
-	var result []float64
+	var from, to int
 
 	valuesNum := len(values)
 
@@ -63,31 +61,25 @@ func getNeighbors(values []float64, currentValue float64, pointsNum int) ([]floa
 		err = errors.New("Error: values num less then points num")
 
 	case pointsNum == valuesNum:
-		result = make([]float64, len(values))
-		copy(result, values)
+		to = len(values) - 1
 
 	default:
-		rightOffset := pointsNum / 2
-		leftOffset := rightOffset + pointsNum%2
+		rightOffset := (pointsNum - 1) / 2
+		leftOffset := rightOffset + (pointsNum-1)%2
 		index, err := findIndex(values, currentValue)
-
-		var from, to int
 
 		if err == nil {
 			if index < leftOffset {
-				to = pointsNum
+				to = pointsNum - 1
 			} else if valuesNum-1 < index+rightOffset {
-				from = valuesNum - pointsNum
-				to = valuesNum
+				from = valuesNum - 1 - pointsNum
+				to = valuesNum - 1
 			} else {
 				from = index - leftOffset
-				to = index + leftOffset
+				to = index + rightOffset
 			}
-
-			result = make([]float64, pointsNum)
-			copy(result, values[from:to])
 		}
 	}
 
-	return result, err
+	return from, to, err
 }
