@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"errors"
+	"math"
+)
 
 func getRange(from, step float64, pointsNum int) []float64 {
 	rangeArr := make([]float64, pointsNum)
@@ -35,4 +38,64 @@ func round(x float64, prec int) float64 {
 	}
 
 	return rounder / pow
+}
+
+func findIndex(values []float64, currentValue float64) (int, error) {
+	var err error
+	var result int
+
+	switch true {
+	case len(values) == 0:
+		err = errors.New("Error: values slice is empty")
+
+	case currentValue > values[len(values)-1]:
+		result = len(values) - 1
+
+	default:
+		for i, value := range values {
+			if value >= currentValue {
+				result = i
+				break
+			}
+		}
+	}
+
+	return result, err
+}
+
+func getNeighborsIndexes(values []float64, currentValue float64, pointsNum int) (int, int, error) {
+	var err error
+	var from, to int
+
+	valuesNum := len(values)
+
+	switch true {
+	case pointsNum < 2:
+		err = errors.New("Error: points num must be more than 1")
+
+	case pointsNum > valuesNum:
+		err = errors.New("Error: values num less then points num")
+
+	case pointsNum == valuesNum:
+		to = len(values) - 1
+
+	default:
+		rightOffset := (pointsNum - 1) / 2
+		leftOffset := rightOffset + (pointsNum-1)%2
+		index, err := findIndex(values, currentValue)
+
+		if err == nil {
+			if index < leftOffset {
+				to = pointsNum - 1
+			} else if valuesNum-1 < index+rightOffset {
+				from = valuesNum - 1 - pointsNum
+				to = valuesNum - 1
+			} else {
+				from = index - leftOffset
+				to = index + rightOffset
+			}
+		}
+	}
+
+	return from, to, err
 }
