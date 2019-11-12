@@ -21,7 +21,7 @@ var reducers map[string]func(float64) float64 = map[string]func(float64) float64
 }
 
 func main() {
-	fmt.Println("Newton polynomial interpolation (y = x^2).")
+	fmt.Print("Newton polynomial interpolation.\n\n")
 
 	x0, h, x, n, N, reducerKey := handleInput(reducers)
 
@@ -30,8 +30,10 @@ func main() {
 	xArray := getRange(x0, h, n)
 	yArray := getYArray(xArray, reducer)
 
+	interpolated, _ := interpolate(xArray, yArray, N, x)
+
 	fmt.Println("Function result: ", reducer(x))
-	fmt.Println("Interpolation result: ", interpolate(xArray, yArray, N, x))
+	fmt.Println("Interpolation result: ", interpolated)
 
 	p, err := plot.New()
 	if err != nil {
@@ -57,6 +59,9 @@ func main() {
 }
 
 func handleInput(map[string]func(float64) float64) (x0, h, x float64, n, N int, reducerKey string) {
+	fmt.Println("--------------------------")
+	fmt.Print("SET TABLE FUNCTION PARAMS\n\n")
+
 	fmt.Println("Choose the available function:")
 
 	keys := make([]string, 0, len(reducers))
@@ -81,8 +86,8 @@ func handleInput(map[string]func(float64) float64) (x0, h, x float64, n, N int, 
 	fmt.Print("Enter n:  ")
 	fmt.Scanln(&n)
 
-	fmt.Println("--------------------------")
-	fmt.Println("SET INTERPOLATION PARAMS")
+	fmt.Println("\n--------------------------")
+	fmt.Print("SET INTERPOLATION PARAMS\n\n")
 
 	fmt.Print("Enter N:  ")
 	fmt.Scanln(&N)
@@ -109,21 +114,30 @@ func getDividedDifferences(xArray, yArray []float64) []float64 {
 	return differences
 }
 
-func interpolate(xArray, yArray []float64, N int, x float64) float64 {
-	diffs := getDividedDifferences(xArray, yArray)
+func interpolate(xArray, yArray []float64, N int, x float64) (float64, error) {
+	from, to, err := getNeighborsIndexes(xArray, x, N+1)
+
+	if err != nil {
+		return 0, err
+	}
+
+	xs := xArray[from : to+1]
+	ys := yArray[from : to+1]
+
+	diffs := getDividedDifferences(xs, ys)
 	y := diffs[0]
 
 	for i := 1; i < N+1; i++ {
 		step := diffs[i]
 
 		for j := 0; j < i; j++ {
-			step *= x - xArray[j]
+			step *= x - xs[j]
 		}
 
 		y += step
 	}
 
-	return y
+	return y, nil
 }
 
 func getPoints(xArray, yArray []float64) plotter.XYs {
@@ -169,12 +183,15 @@ func getInterpolatedPlotPoints(xArray, yArray []float64, N int) plotter.XYs {
 			for j := 0; j < 10; j++ {
 				index := j + i*10
 				xValue := temp + step*float64(j)
+				interpolated, _ := interpolate(xArray, yArray, N, xValue)
+
 				points[index].X = xValue
-				points[index].Y = interpolate(xArray, yArray, N, xValue)
+				points[index].Y = interpolated
 			}
 		} else {
+			interpolated, _ := interpolate(xArray, yArray, N, x)
 			points[10*i-1].X = x
-			points[10*i-1].Y = interpolate(xArray, yArray, N, x)
+			points[10*i-1].Y = interpolated
 		}
 	}
 
