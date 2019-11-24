@@ -18,6 +18,7 @@ var reducers map[string]func(float64) float64 = map[string]func(float64) float64
 	"y = cos(x)":      func(x float64) float64 { return math.Cos(x * math.Pi / 180) },
 	"y = sqrt(x)":     func(x float64) float64 { return math.Sqrt(x) },
 	"y = x * sqrt(x)": func(x float64) float64 { return x * math.Sqrt(x) },
+	"y = x^2 - 1":     func(x float64) float64 { return x*x - 1 },
 }
 
 func main() {
@@ -31,9 +32,13 @@ func main() {
 	yArray := getYArray(xArray, reducer)
 
 	interpolated, _ := interpolate(xArray, yArray, N, x)
+	root, _ := getRoots(xArray, yArray, N)
+
+	printTable(xArray, yArray)
 
 	fmt.Println("Function result: ", reducer(x))
 	fmt.Println("Interpolation result: ", interpolated)
+	fmt.Println("Function root: ", root)
 
 	p, err := plot.New()
 	if err != nil {
@@ -98,6 +103,15 @@ func handleInput(map[string]func(float64) float64) (x0, h, x float64, n, N int, 
 	return
 }
 
+func printTable(xArray, yArray []float64) {
+	fmt.Printf("\n___________________\n")
+	fmt.Printf("    X    |    Y    \n")
+	for i := range xArray {
+		fmt.Printf("%7.3f  | %7.3f\n", xArray[i], yArray[i])
+	}
+	fmt.Printf("-------------------\n\n")
+}
+
 func getDividedDifferences(xArray, yArray []float64) []float64 {
 	differences := make([]float64, len(yArray))
 	copy(differences, yArray)
@@ -138,6 +152,10 @@ func interpolate(xArray, yArray []float64, N int, x float64) (float64, error) {
 	}
 
 	return y, nil
+}
+
+func getRoots(xArray, yArray []float64, N int) (float64, error) {
+	return interpolate(yArray, xArray, N, 0)
 }
 
 func getPoints(xArray, yArray []float64) plotter.XYs {
